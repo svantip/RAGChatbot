@@ -1,3 +1,4 @@
+from langchain_huggingface import HuggingFaceEmbeddings
 import streamlit as st
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langchain_community.vectorstores import Redis
@@ -8,9 +9,11 @@ from langgraph.checkpoint.memory import MemorySaver
 # 🧠 Redis vectorstore setup
 redis_url = "redis://localhost:6379"
 index_name = "my-index"
-embedding = OllamaEmbeddings(model="deepseek-r1:8b")
+
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 vectorstore = Redis.from_existing_index(
-    embedding=embedding,
+    embedding=embeddings,
     redis_url=redis_url,
     index_name=index_name,
     schema=None
