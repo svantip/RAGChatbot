@@ -13,9 +13,9 @@ def clean_text(text):
         line = line.strip()
         if not line:
             continue
-        if line.replace(" ", "").isdigit():  # samo brojevi
+        if line.replace(" ", "").isdigit():
             continue
-        if line.count("0") > 10:  # tablični šum
+        if line.count("0") > 10:
             continue
         cleaned.append(line)
     return "\n".join(cleaned)

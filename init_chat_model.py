@@ -1,12 +1,11 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 import streamlit as st
-from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_community.vectorstores import Redis
 from langgraph.graph import START, MessagesState, StateGraph
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.checkpoint.memory import MemorySaver
 
-# 🧠 Redis vectorstore setup
 redis_url = "redis://localhost:6379"
 index_name = "my-index"
 
@@ -19,7 +18,6 @@ vectorstore = Redis.from_existing_index(
     schema=None
 )
 
-# 🔧 LLM i prompt
 model = ChatOllama(model="deepseek-r1:8b", temperature=0.3)
 
 prompt_template = ChatPromptTemplate.from_messages([
@@ -51,27 +49,22 @@ def call_model(state: MessagesState):
     return {"messages": response}
 
 
-# 🔁 LangGraph setup
 workflow = StateGraph(state_schema=MessagesState)
 workflow.add_node("model", call_model)
 workflow.add_edge(START, "model")
 memory = MemorySaver()
 app = workflow.compile(checkpointer=memory)
 
-# 🌐 Streamlit UI
 st.set_page_config(page_title="Chat with Uni AI Assistant", page_icon="🦜")
 st.title("AI Asistent za upise na faks")
 
-# 🧠 Init session
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 💬 Prikaži povijest poruka
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# ⌨️ Unos korisnika
 if user_input := st.chat_input("Postavi pitanje o upisima..."):
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
